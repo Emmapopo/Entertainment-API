@@ -27,7 +27,7 @@ from entertainment_model import blogger_model, news_model, featured_image_model
 mysql_host = os.environ.get('MYSQL_HOST')
 mysql_user = os.environ.get('MYSQL_USER')
 mysql_password = os.environ.get('MYSQL_PASSWORD')
-db_name = os.environ.get('DB_NAME')
+db_name = 'testing' # os.environ.get('DB_NAME') 
 
 UPLOAD_FOLDER = 'uploads'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
@@ -206,6 +206,7 @@ def post_news():
         # Gets all input data from the user
         title = request.form.get('title')
         news = request.form.get('news')
+        category_id = request.form.get('category_id')
         fi = request.form.get('featured_image') # gets featured image
       
     except:
@@ -214,7 +215,7 @@ def post_news():
     print(news, fi, ts)
     
     try:
-        n_controller.add_news(news_model.News(user_id, title, news, ts))  #Save news in the database  
+        n_controller.add_news(news_model.News(user_id, title, news, int(category_id), ts))  #Save news in the database  
         
         if fi != '':
             news_id = n_controller.get_news_id(user_id, ts)     # return the news_id
@@ -225,59 +226,159 @@ def post_news():
     return {'success': 'News has been updated'}
     
 
-#This route is to get news in a news page
-@app.route('/api/newslist/<int:per>/<int:page_num>', methods=['GET'])   #per means the number per page and page_num means the page number
-@jwt_required
-def get_news_list(per, page_num):
+# #This route is to like a news
+# @app.route('/api/news/like', methods=['POST'])
+# @jwt_required
+# def like_news():
+#     user = get_jwt_identity()
+#     user_id = int(user['id'])
+#     ts = datetime.datetime.now()
+#     ts = str(ts)
+#     try:
+#         # Gets all input data from the user
+#         news_id = request.form.get('news_id')  # Get the news user wants to like
 
-    if page_num == 0:
-        page_num = 1
-
-    if per == 0:
-        per = 20
-
-    threads = db.session.query(news_model.News).paginate(per_page = per, page = page_num, error_out=False)
-    no_of_items = len(threads.items)
-
-    news = {}
-    status = 'failed'
+#     except:
+#         return {'Error': 'Invalid news_id'}
     
-    if no_of_items > 0:
-        for a in range(no_of_items):
-            blogger_id = threads.items[a].blogger_id
-            blogger_name = b_controller.blogger_name(blogger_id)
-            news.update({threads.items[a].id: {'news_id':threads.items[a].id, 'blogger_id': blogger_name, 'title': threads.items[a].title}})
+#     try:
+#         n_controller.like_news(news_controller.Like(user_id, news_id, ts))
 
-        status = 'success'
+#     except:
+#         return {'Error': 'unable to like news'}
 
-    news_list = {'news_list': news, 'status':status}
+#     return{'status': 'liked'}
 
-    print("i'm here")
+# #This route is to unlike a news
+# @app.route('/api/news/unlike', methods=['POST'])
+# @jwt_required
+# def unlike_news():
+#     user = get_jwt_identity()
+#     user_id = int(user['id'])
 
-    return news_list
+#     try:
+#         # Gets all input data from the user
+#         news_id = request.form.get('news_id')  # Get the news user wants to like
+
+#     except:
+#         return {'Error': 'Invalid news_id'}
+    
+#     try:
+#         n_controller.unlike_news(user_id, news_id)
+
+#     except:
+#         return {'Error': 'unable to unlike news'}
+
+#     return{'status': 'unliked'}
+
+# #This route is to comment on a news
+# @app.route('/api/news/comment', methods=['POST'])
+# @jwt_required
+# def comment_news():
+#     user = get_jwt_identity()
+#     user_id = int(user['id'])
+#     ts = datetime.datetime.now()
+#     ts = str(ts)
+#     try:
+#         # Gets all input data from the user
+#         news_id = request.form.get('news_id')  # Get the news user wants to like
+#         comment = request.form.get('comment')  # This is the user's comment
+
+#     except:
+#         return {'Error': 'Invalid news_id'}
+    
+#     try:
+#         n_controller.comment_news(news_controller.Comment(user_id, news_id, comment, ts))
+
+#     except:
+#         return {'Error': 'unable to comment on news'}
+
+#     return{'status': 'commented'}
 
 
-#This route is to get the info in a specific news based on the news_id
-@app.route('/api/news/<int:news_id>', methods=['GET'])  
-@jwt_required
-def get_news(news_id):   
+# #This route if to retrieve likes
+# @app.route('/api/likes/<news_id>', methods=['GET'])
+# @jwt_required
+# def get_likes(news_id):
 
-    try:  
-        news_object = n_controller.get_news(news_id)
-        blogger_id = news_object.blogger_id
-        blogger_name = b_controller.blogger_name(blogger_id)
-        content = news_object.content
-        title = news_object.title
-        ts = news_object.timestamp
-        status = 'success'
+#     likes = n_controller.get_likes(news_id)
 
-        news = {'blogger_name': blogger_name, 'title': title, 'content': content, 'time': ts}
+#     return likes
 
-    except:
-        news = 'Record not found'
-        status = 'failed'
+# #This route if to retrieve comments
+# @app.route('/api/comments/<news_id>', methods=['GET'])
+# @jwt_required
+# def get_comments(news_id):
 
-    return {'status': status, 'news':news}
+#     comments = n_controller.get_comments(news_id)
+
+#     return comments   
+
+
+# #This route is to get news in a news page
+# @app.route('/api/newslist/<int:per>/<int:page_num>', methods=['GET'])   #per means the number per page and page_num means the page number
+# @jwt_required
+# def get_news_list(per, page_num):
+
+#     if page_num == 0:
+#         page_num = 1
+
+#     if per == 0:
+#         per = 20
+
+#     threads = db.session.query(news_model.News).paginate(per_page = per, page = page_num, error_out=False)
+#     no_of_items = len(threads.items)
+
+#     news = {}
+#     status = 'failed'
+    
+#     if no_of_items > 0:
+#         for a in range(no_of_items):
+#             blogger_id = threads.items[a].blogger_id
+#             blogger_name = b_controller.blogger_name(blogger_id)
+#             news.update({threads.items[a].id: {'news_id':threads.items[a].id, 'blogger_name': blogger_name, 'title': threads.items[a].title}})
+
+#         status = 'success'
+
+#     news_list = {'news_list': news, 'status':status}
+
+#     print("i'm here")
+
+#     return news_list
+
+
+# #This route is to get the info in a specific news based on the news_id
+# @app.route('/api/news/<int:news_id>', methods=['GET'])  
+# @jwt_required
+# def get_news(news_id): 
+#     user = get_jwt_identity()
+#     user_id = int(user['id'])  
+
+#     try:  
+#         news_object = n_controller.get_news(news_id)
+#         blogger_id = news_object.blogger_id
+#         blogger_name = b_controller.blogger_name(blogger_id)
+#         content = news_object.content
+#         title = news_object.title
+#         category_id = news_object.category_id
+#         category = n_controller.get_category(category_id)
+#         ts = news_object.timestamp
+#         featured_image_object = n_controller.get_featuredimage(news_id)
+#         featured_image = featured_image_object.image
+#         no_of_likes = n_controller.get_no_likes(news_id)
+#         no_of_comments = n_controller.get_no_comments(news_id)
+#         user_like = n_controller.user_like(user_id, news_id)
+
+#         status = 'success'
+
+#         news = {'blogger_name': blogger_name, 'title': title, 'content': content, 'category': category, 'featured image': featured_image, 'no of likes':no_of_likes, 'no of comments': no_of_comments, 'user like ?': user_like, 'time': ts}
+
+#     except:
+#         news = 'Record not found'
+#         status = 'failed'
+
+#     return {'status': status, str(news_id):news}
+
 
 
 # Function to login

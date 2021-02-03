@@ -8,7 +8,7 @@ To setup:
     d) db_name - (Database name)
     e) jwt_secret_key
 
-This Entertainment API can do 5 major things:
+This Entertainment API can do 14 major things:
 1) Register a blogger
 2) Login 
 3) upload a blog image
@@ -18,6 +18,11 @@ This Entertainment API can do 5 major things:
 7) Post a news
 8) Get the list of news in a page
 9) Get a specific news details
+10) Like a news
+11) Unlike a news
+12) retrieve likes
+13) comment on a news
+14) retrieve comments
 
 
 
@@ -173,7 +178,7 @@ If it is unable to uplaod the news, it returns  :         {'Error': 'Unable to u
 
 
 
-8) GET THE LIST OF NEWS ON A PAGE
+<!-- 8) GET THE LIST OF NEWS ON A PAGE
 This is GET request that allows the user to get a list of news on a page.
 The route is: '/api/newslist/<int:per>/<int:page_num>'
 where:
@@ -218,13 +223,17 @@ http://127.0.0.1:5000/api/news/1
 
 If the request is succesful, it returns:
 {
-  "news": {
-    "blogger_name": "Daniel Adewuyi",
-    "content": "fuck it mehn",
-    "time": "Wed, 19 Aug 2020 17:28:02 GMT",
-    "title": "Boss man"
-  },
-  "status": "success"
+    "1": {
+        "blogger_name": "Monihan Patrick",
+        "content": "Bouyuhs hasudch hiuukdhnjck hiudjc",
+        "featured image": "http://127.0.0.1:5000/uploads/blogimage/2020/12/21/WIN_20201208_12_24_49_Pro1608560765.jpg",
+        "no of comments": 0,
+        "no of likes": 1,
+        "time": "Sat, 30 Jan 2021 16:02:50 GMT",
+        "title": "boy",
+        "user like ?": "no"
+    },
+    "status": "success"
 }
 
 If the news id doesn't exist, it returns:
@@ -233,3 +242,129 @@ If the news id doesn't exist, it returns:
   "status": "failed"
 }
 
+
+10) LIKE A NEWS
+This is a POST request. The path is '/api/news/like'
+
+The information that needs to be provided are:
+
+a) news_id
+
+A sample request is
+http://127.0.0.1:5000/api/news/like
+news_id: 1
+
+if successful, it returns:
+{
+    "status": "liked"
+}
+
+If unsuccessful, it returns:
+{
+    "Error": "unable to like news"
+}
+
+
+11) UNLIKE A NEWS
+This is a POST request. The path is '/api/news/unlike'
+
+The information that needs to be provided is:
+a) news_id
+
+A sample request is
+http://127.0.0.1:5000/api/news/unlike
+news_id: 1
+
+If successful, it returns,
+{
+    "status": "unliked"
+}
+
+If unsuccessful, it returns,
+{
+    "Error": "unable to unlike news"
+}
+
+
+
+12) RETRIEVE LIKES
+This is a GET request.
+The route is: '/api/likes/<news_id>'
+where:
+news_id is the news id:
+
+Here is a sample request:
+http://127.0.0.1:5000/api/likes/1
+
+This means retrieve all the likes for news_id 1
+
+If successful, it returns,
+{
+    "1": {
+        "liker": 1,
+        "timestamp": "Mon, 01 Feb 2021 13:26:10 GMT"
+    },
+    "6": {
+        "liker": 2,
+        "timestamp": "Mon, 01 Feb 2021 15:17:54 GMT"
+    }
+}
+
+where "1" and "6" represents the like_id in the like table. 
+
+If there are no likes, it returns
+{}
+
+
+13) COMMENT ON A NEWS
+This is a POST request. The path is '/api/news/comment'
+
+The information that needs to be provided is:
+a) news_id
+b) comment
+
+A sample request is
+http://127.0.0.1:5000/api/news/comment
+news_id: 1
+comment: 'Fuck all the things that are happening'
+
+If successful, it returns:
+{
+    "status": "commented"
+}
+
+If unsuccessful, it returns:
+{
+    "Error": "unable to comment on news"
+}
+
+
+14) RETREIVE COMMENTS
+This is a GET request.
+The route is: '/api/comments/<news_id>'
+where:
+news_id is the news id:
+
+Here is a sample request:
+http://127.0.0.1:5000/api/comments/2
+
+This means retrieve all the comments for news_id 2
+
+If successful, it returns:
+{
+    "1": {
+        "comment": "God save us from all this rubbish",
+        "commenter": 2,
+        "timestamp": "Mon, 01 Feb 2021 13:36:31 GMT"
+    },
+    "2": {
+        "comment": "What's the meaning of all this rubbish again",
+        "commenter": 2,
+        "timestamp": "Mon, 01 Feb 2021 13:37:25 GMT"
+    }
+}
+
+If there are no comments to be retrieved, it returns:
+{}
+
+ -->
